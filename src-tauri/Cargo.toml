@@ -1,0 +1,30 @@
+[package]
+name = "dot-reader"
+version = "1.0.0"
+description = "A lightweight dot-matrix reading-mode browser"
+edition = "2021"
+
+[lib]
+# The `_lib` suffix avoids a name clash with the binary on Windows.
+name = "dot_reader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# `macos-private-api` is required for a truly transparent window on macOS.
+tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
+tauri-plugin-window-state = "2"
+tauri-plugin-single-instance = "2"
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+# Downloading pages for reading mode
+ureq = "2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

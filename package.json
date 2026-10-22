@@ -1,0 +1,19 @@
+{
+  "name": "dot-reader",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Lightweight dot-matrix reading-mode browser (Tauri)",
+  "scripts": {
+    "dev": "tauri dev",
+    "build:win": "tauri build --bundles msi",
+    "build:mac": "tauri build --target universal-apple-darwin --bundles dmg",
+    "test": "node tests/run-tests.js",
+    "vendor": "node tools/vendor.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "@mozilla/readability": "0.5.0"
+  }
+}
