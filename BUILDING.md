@@ -40,14 +40,67 @@ Pushing a tag such as `v1.0.0` also builds the Windows `.msi` and puts it in a d
 4. The installer is written to `src-tauri\target\release\bundle\msi\Dot Reader_1.0.0_x64_en-US.msi`.
 
 ### macOS (makes a universal .dmg)
+ 
+1. Install the tools once, from Terminal. Skip any you already have.
+ 
+   Xcode command line tools:
+   ```
+   xcode-select --install
+   ```
 
-```bash
-rustup target add aarch64-apple-darwin x86_64-apple-darwin
-npm install
-npm run build:mac
-```
-
-The `.dmg` is written to `src-tauri/target/universal-apple-darwin/release/bundle/dmg/`.
+   Rust. If you previously installed Rust through Homebrew, remove it first, because its older Cargo can't build this project and it conflicts with rustup:
+   ```
+   brew uninstall rust
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+   Choose the standard installation, then load Rust into your current shell (or just open a new Terminal window):
+   ```
+   . "$HOME/.cargo/env"
+   ```
+ 
+   Node.js (with [Homebrew](https://brew.sh)):
+   ```
+   brew install node
+   ```
+   Or download the LTS installer from https://nodejs.org and open a new Terminal window afterwards.
+ 
+   Check everything is in place. Each command should print a version, and `cargo` should be 1.85 or newer:
+   ```
+   node -v
+   npm -v
+   cargo --version
+   rustup --version
+   ```
+ 
+2. Open Terminal in the project folder, the one that contains `package.json`. Type `cd ` (with a trailing space), drag the folder from Finder into the Terminal window and press Enter. For example:
+   ```
+   cd /Users/yourname/Downloads/dot-[widghetname]-main
+   ```
+ 
+3. Add the two Mac build targets and install the dependencies:
+   ```
+   rustup target add aarch64-apple-darwin x86_64-apple-darwin
+   npm install
+   ```
+ 
+4. Build. The first run compiles a lot of Rust and can take several minutes:
+   ```
+   CI=true npm run build:mac
+   ```
+   `CI=true` skips the step where the DMG script uses AppleScript to arrange the window in Finder. That step can hang or fail depending on Automation permissions. The only effect is that the DMG window has no custom icon layout.
+ 
+5. Open the output folder:
+   ```
+   open src-tauri/target/universal-apple-darwin/release/bundle/dmg/
+   ```
+   The installer is `Dot WIDGETNAME_X.X.X_universal.dmg`. If you only see `bundle_dmg.sh` and `icon.icns`, the build didn't finish; see Troubleshooting below.
+ 
+### Troubleshooting (macOS)
+ 
+- **`rustup: command not found`**: run `. "$HOME/.cargo/env"` or open a new Terminal window.
+- **`npm: command not found`**: Node.js isn't installed; see step 1.
+- **`feature edition2024 is required` / Cargo 1.84**: an old Homebrew Rust is being used instead of rustup's. Run `brew uninstall rust`, open a new Terminal window and check that `cargo --version` is 1.85 or newer.
+- **No `.dmg` in the folder, and a "Dot WIDGET" disk is mounted**: a previous build was interrupted. Eject it with `hdiutil detach "/Volumes/Dot WIDGET"` (add `-force` if it's busy), then rebuild with `CI=true npm run build:mac`.
 
 For development, `npm run dev` runs the app with live reload. `npm test` runs the logic tests in Node, which cover the lower-case letters, cleaning up quotes and accents, word wrapping (and breaking very long words), links, lists, the top bar, scrolling, loading and errors, margins at every size, addresses and settings repair.
 
